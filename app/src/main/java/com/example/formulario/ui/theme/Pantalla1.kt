@@ -1,6 +1,5 @@
 package com.example.formulario.ui.screen
 
-import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -16,12 +15,24 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 
 @Composable
-fun Pantalla1(navController: NavController) {
+fun Pantalla1(navController: NavController, mascotas: MutableList<List<String>>) {
     var nombre by remember { mutableStateOf("") }
     var raza by remember { mutableStateOf("") }
     var tamano by remember { mutableStateOf("") }
     var edad by remember { mutableStateOf("") }
     var fotoUrl by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    val mascotaIndex = navController.currentBackStackEntry?.arguments?.getString("mascotaIndex")?.toIntOrNull()
+
+
+    if (mascotaIndex != null && mascotaIndex >= 0 && mascotaIndex < mascotas.size) {
+        val mascota = mascotas[mascotaIndex]
+        nombre = mascota[0]
+        raza = mascota[1]
+        tamano = mascota[2]
+        edad = mascota[3]
+        fotoUrl = mascota[4]
+    }
 
     Column(
         modifier = Modifier
@@ -75,18 +86,22 @@ fun Pantalla1(navController: NavController) {
 
         if (fotoUrl.isNotBlank()) {
             AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
+                model = ImageRequest.Builder(context)
                     .data(fotoUrl)
                     .crossfade(true)
                     .build(),
                 contentDescription = "Foto de la mascota",
-                modifier = Modifier
-                    .size(150.dp)
+                modifier = Modifier.size(150.dp)
             )
         }
 
         Button(
             onClick = {
+                if (mascotaIndex != null && mascotaIndex >= 0 && mascotaIndex < mascotas.size) {
+                    mascotas[mascotaIndex] = listOf(nombre, raza, tamano, edad, fotoUrl)
+                } else {
+                    mascotas.add(listOf(nombre, raza, tamano, edad, fotoUrl))
+                }
                 navController.navigate("Pantalla2")
             },
             modifier = Modifier.fillMaxWidth()
